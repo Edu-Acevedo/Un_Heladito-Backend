@@ -1,0 +1,15 @@
+# Maven
+/target/
+
+# IntelliJ IDEA
+.idea/
+*.iml
+
+# Configuración local y secretos
+.env
+.env.*
+application-local.properties
+
+# Sistema operativo
+.DS_Store
+Thumbs.db
