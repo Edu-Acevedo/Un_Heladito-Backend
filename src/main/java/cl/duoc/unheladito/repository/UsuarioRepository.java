@@ -5,7 +5,7 @@ import java.util.Optional;
 import cl.duoc.unheladito.entity.Usuario;
 import org.springframework.data.jpa.repository.JpaRepository;
 
-public interface UsuarioRespository extends JpaRepository<Usuario, Long> {
+public interface UsuarioRepository extends JpaRepository<Usuario, Long> {
 
     Optional<Usuario> findByEmailIgnoreCase(String email);
 
