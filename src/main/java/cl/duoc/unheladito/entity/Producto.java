@@ -38,6 +38,9 @@ public class Producto {
     @Column(nullable = false, length = 500)
     private String imagen;
 
+    @Column(nullable = false)
+    private Integer ordenCatalogo = 0;
+
 
     public Producto() {
     }
@@ -69,6 +72,9 @@ public class Producto {
 
     public String getId() {
         return id;
+    }
+    public void setId(String id) {
+        this.id = id;
     }
 
     public String getNombre() {
@@ -141,5 +147,12 @@ public class Producto {
 
     public void setImagen(String imagen) {
         this.imagen = imagen;
+    }
+    public Integer getOrdenCatalogo() {
+        return ordenCatalogo;
+    }
+
+    public void setOrdenCatalogo(Integer ordenCatalogo) {
+        this.ordenCatalogo = ordenCatalogo;
     }
 }
