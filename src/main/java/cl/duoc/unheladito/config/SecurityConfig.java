@@ -135,6 +135,24 @@ public class SecurityConfig {
                                 "/api/categorias",
                                 "/api/categorias/**"
                         ).hasRole("ADMINISTRADOR")
+                                .requestMatchers(
+                                        HttpMethod.POST,
+                                        "/api/pedidos"
+                                ).hasRole("CLIENTE")
+
+                                .requestMatchers(
+                                        HttpMethod.GET,
+                                        "/api/pedidos/mis-pedidos"
+                                ).hasRole("CLIENTE")
+
+                                .requestMatchers(
+                                        HttpMethod.GET,
+                                        "/api/pedidos"
+                                ).hasAnyRole("VENDEDOR", "ADMINISTRADOR")
+                                .requestMatchers(
+                                        HttpMethod.GET,
+                                        "/api/pedidos/*"
+                                ).hasAnyRole("CLIENTE", "VENDEDOR", "ADMINISTRADOR")
 
                         .anyRequest().denyAll()
                 )
