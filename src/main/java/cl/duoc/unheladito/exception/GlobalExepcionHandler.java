@@ -13,6 +13,8 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 import org.springframework.http.converter.HttpMessageNotReadableException;
 
+import javax.naming.AuthenticationException;
+
 @RestControllerAdvice
 public class GlobalExepcionHandler {
 
@@ -132,5 +134,16 @@ public class GlobalExepcionHandler {
         );
 
         return ResponseEntity.status(estado).body(error);
+    }
+    @ExceptionHandler(AuthenticationException.class)
+    public ResponseEntity<ErrorApi> autenticacionFallida(
+            AuthenticationException ex
+    ) {
+
+        return responder(
+                HttpStatus.UNAUTHORIZED,
+                "Correo o contraseña incorrectos.",
+                Map.of()
+        );
     }
 }
