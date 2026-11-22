@@ -16,7 +16,7 @@ import cl.duoc.unheladito.exception.RefreshTokenInvalidoException;
 import cl.duoc.unheladito.exception.OrigenNoPermitidoException;
 import cl.duoc.unheladito.exception.OperacionNoPermitidaException;
 
-import javax.naming.AuthenticationException;
+import org.springframework.security.core.AuthenticationException;
 
 @RestControllerAdvice
 public class GlobalExepcionHandler {

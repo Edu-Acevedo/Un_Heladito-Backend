@@ -14,6 +14,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 
 @RestController
 @RequestMapping("/api/productos")
@@ -58,6 +59,7 @@ public class ProductoController {
 
     @PostMapping
     @Operation(summary = "Registrar un nuevo producto")
+    @SecurityRequirement(name = "bearerAuth")
     public ResponseEntity<ProductoResponse> crear(
             @Valid @RequestBody ProductoRequest request
     ) {
@@ -79,6 +81,7 @@ public class ProductoController {
 
     @PutMapping("/{id}")
     @Operation(summary = "Actualizar un producto")
+    @SecurityRequirement(name = "bearerAuth")
     public ResponseEntity<ProductoResponse> actualizar(
             @PathVariable String id,
             @Valid @RequestBody ProductoRequest request
@@ -96,6 +99,7 @@ public class ProductoController {
 
     @DeleteMapping("/{id}")
     @Operation(summary = "Eliminar un producto")
+    @SecurityRequirement(name = "bearerAuth")
     public ResponseEntity<Void> eliminar(
             @PathVariable String id
     ) {

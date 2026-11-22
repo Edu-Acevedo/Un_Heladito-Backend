@@ -12,6 +12,7 @@ import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 
 @RestController
 @RequestMapping("/api/categorias")
@@ -48,6 +49,8 @@ public class CategoriaController {
 
     @PostMapping
     @Operation(summary = "Crear una categoría")
+    @SecurityRequirement(name = "bearerAuth")
+
     public ResponseEntity<CategoriaResponse> crear(
             @Valid @RequestBody CategoriaRequest request
     ) {
@@ -64,6 +67,7 @@ public class CategoriaController {
 
     @PutMapping("/{id}")
     @Operation(summary = "Renombrar una categoría")
+    @SecurityRequirement(name = "bearerAuth")
     public ResponseEntity<CategoriaResponse> actualizar(
             @PathVariable Long id,
             @Valid @RequestBody CategoriaRequest request
@@ -80,6 +84,7 @@ public class CategoriaController {
 
     @DeleteMapping("/{id}")
     @Operation(summary = "Eliminar una categoría")
+    @SecurityRequirement(name = "bearerAuth")
     public ResponseEntity<Void> eliminar(
             @PathVariable Long id
     ) {
