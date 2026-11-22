@@ -37,4 +37,18 @@ public interface RefreshTokenRepository extends JpaRepository<RefreshToken, Long
             @Param("familyId") String familyId,
             @Param("momento") Instant momento
     );
+    @Modifying(
+            flushAutomatically = true,
+            clearAutomatically = true
+    )
+    @Query("""
+    UPDATE RefreshToken r
+    SET r.revocadoEn = :momento
+    WHERE r.usuario.id = :usuarioId
+    AND r.revocadoEn IS NULL
+    """)
+    int revocarTodosDeUsuario(
+            @Param("usuarioId") Long usuarioId,
+            @Param("momento") Instant momento
+    );
 }

@@ -14,6 +14,7 @@ import org.springframework.web.method.annotation.MethodArgumentTypeMismatchExcep
 import org.springframework.http.converter.HttpMessageNotReadableException;
 import cl.duoc.unheladito.exception.RefreshTokenInvalidoException;
 import cl.duoc.unheladito.exception.OrigenNoPermitidoException;
+import cl.duoc.unheladito.exception.OperacionNoPermitidaException;
 
 import javax.naming.AuthenticationException;
 
@@ -166,6 +167,17 @@ public class GlobalExepcionHandler {
 
         return responder(
                 HttpStatus.FORBIDDEN,
+                ex.getMessage(),
+                Map.of()
+        );
+    }
+    @ExceptionHandler(OperacionNoPermitidaException.class)
+    public ResponseEntity<ErrorApi> operacionNoPermitida(
+            OperacionNoPermitidaException ex
+    ) {
+
+        return responder(
+                HttpStatus.CONFLICT,
                 ex.getMessage(),
                 Map.of()
         );

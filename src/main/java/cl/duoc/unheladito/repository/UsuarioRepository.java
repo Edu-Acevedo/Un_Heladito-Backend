@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.Optional;
 import cl.duoc.unheladito.entity.Usuario;
 import org.springframework.data.jpa.repository.JpaRepository;
+import cl.duoc.unheladito.entity.RolUsuario;
 
 public interface UsuarioRepository extends JpaRepository<Usuario, Long> {
 
@@ -12,4 +13,6 @@ public interface UsuarioRepository extends JpaRepository<Usuario, Long> {
     boolean existsByEmailIgnoreCase(String email);
 
     List<Usuario> findAllByOrderByFechaCreacionDesc();
+
+    long countByRolAndActivoTrue(RolUsuario rol);
 }

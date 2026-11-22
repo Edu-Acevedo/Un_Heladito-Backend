@@ -87,7 +87,8 @@ public class SecurityConfig {
                         .requestMatchers(
                                 HttpMethod.GET,
                                 "/api/auth/me"
-                        ).authenticated()
+                        ).authenticated().requestMatchers("/api/admin/**")
+                        .hasRole("ADMINISTRADOR")
                         .anyRequest().permitAll()
                 )
 
