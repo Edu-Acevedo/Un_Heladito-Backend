@@ -1,6 +1,9 @@
 package cl.duoc.unheladito.service;
 
+import java.nio.charset.StandardCharsets;
+import java.util.Locale;
 import cl.duoc.unheladito.dto.auth.AuthResponse;
+import cl.duoc.unheladito.dto.auth.AuthSessionResult;
 import cl.duoc.unheladito.dto.auth.LoginRequest;
 import cl.duoc.unheladito.dto.auth.RegistroRequest;
 import cl.duoc.unheladito.dto.auth.UsuarioResponse;
@@ -9,6 +12,7 @@ import cl.duoc.unheladito.entity.Usuario;
 import cl.duoc.unheladito.exception.DatosDuplicadosException;
 import cl.duoc.unheladito.exception.DatosInvalidosException;
 import cl.duoc.unheladito.exception.RecursoNoEncontradoException;
+import cl.duoc.unheladito.exception.RefreshTokenInvalidoException;
 import cl.duoc.unheladito.repository.UsuarioRepository;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
@@ -18,42 +22,36 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.nio.charset.StandardCharsets;
-import java.util.Locale;
-
 @Service
-@Transactional(readOnly = true)
 public class AuthService {
 
     private final UsuarioRepository usuarioRepository;
     private final PasswordEncoder passwordEncoder;
     private final AuthenticationManager authenticationManager;
     private final JwtService jwtService;
+    private final RefreshTokenService refreshTokenService;
 
     public AuthService(
             UsuarioRepository usuarioRepository,
             PasswordEncoder passwordEncoder,
             AuthenticationManager authenticationManager,
-            JwtService jwtService
+            JwtService jwtService,
+            RefreshTokenService refreshTokenService
     ) {
+
         this.usuarioRepository = usuarioRepository;
         this.passwordEncoder = passwordEncoder;
         this.authenticationManager = authenticationManager;
         this.jwtService = jwtService;
+        this.refreshTokenService = refreshTokenService;
     }
 
     @Transactional
-    public AuthResponse registrar(RegistroRequest request) {
+    public AuthSessionResult registrar(RegistroRequest request) {
 
         String nombre = request.name().trim();
         String email = normalizarEmail(request.email());
         String password = request.password();
-
-        if (usuarioRepository.existsByEmailIgnoreCase(email)) {
-            throw new DatosDuplicadosException(
-                    "Ese correo ya está registrado."
-            );
-        }
 
         if (password.getBytes(StandardCharsets.UTF_8).length > 72) {
             throw new DatosInvalidosException(
@@ -61,6 +59,13 @@ public class AuthService {
             );
         }
 
+        if (usuarioRepository.existsByEmailIgnoreCase(email)) {
+            throw new DatosDuplicadosException(
+                    "Ese correo ya está registrado."
+            );
+        }
+
+        // El registro público siempre crea un CLIENTE.
         Usuario usuario = new Usuario(
                 nombre,
                 email,
@@ -70,14 +75,15 @@ public class AuthService {
 
         Usuario guardado = usuarioRepository.save(usuario);
 
-        return crearRespuesta(guardado);
+        return crearSesion(guardado);
     }
 
-    public AuthResponse iniciarSesion(LoginRequest request) {
+    public AuthSessionResult iniciarSesion(LoginRequest request) {
 
         String email = normalizarEmail(request.email());
 
         try {
+
             authenticationManager.authenticate(
                     new UsernamePasswordAuthenticationToken(
                             email,
@@ -86,6 +92,7 @@ public class AuthService {
             );
 
         } catch (AuthenticationException ex) {
+
             throw new BadCredentialsException(
                     "Correo o contraseña incorrectos."
             );
@@ -105,8 +112,26 @@ public class AuthService {
             );
         }
 
-        return crearRespuesta(usuario);
+        return crearSesion(usuario);
     }
+
+    public AuthSessionResult renovar(String refreshTokenOriginal) {
+
+        RefreshTokenService.Rotacion rotacion =
+                refreshTokenService.rotar(refreshTokenOriginal)
+                        .orElseThrow(RefreshTokenInvalidoException::new);
+
+        return new AuthSessionResult(
+                crearRespuesta(rotacion.usuario()),
+                rotacion.tokenNuevo()
+        );
+    }
+
+    public void cerrarSesion(String refreshTokenOriginal) {
+
+        refreshTokenService.revocar(refreshTokenOriginal);
+    }
+
     public UsuarioResponse obtenerPerfil(String email) {
 
         Usuario usuario = usuarioRepository
@@ -125,21 +150,32 @@ public class AuthService {
 
         return UsuarioResponse.fromEntity(usuario);
     }
+
+    private AuthSessionResult crearSesion(Usuario usuario) {
+
+        String refreshToken = refreshTokenService.crear(usuario);
+
+        return new AuthSessionResult(
+                crearRespuesta(usuario),
+                refreshToken
+        );
+    }
+
     private AuthResponse crearRespuesta(Usuario usuario) {
 
-        String token = jwtService.generarAccessToken(usuario);
+        String accessToken = jwtService.generarAccessToken(usuario);
 
         UsuarioResponse perfil = UsuarioResponse.fromEntity(usuario);
 
         return new AuthResponse(
-                token,
+                accessToken,
                 "Bearer",
                 jwtService.obtenerDuracionEnSegundos(),
                 perfil
         );
     }
-    private String normalizarEmail(String email) {
 
+    private String normalizarEmail(String email) {
         return email.trim().toLowerCase(Locale.ROOT);
     }
 }

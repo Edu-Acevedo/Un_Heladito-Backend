@@ -12,6 +12,8 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 import org.springframework.http.converter.HttpMessageNotReadableException;
+import cl.duoc.unheladito.exception.RefreshTokenInvalidoException;
+import cl.duoc.unheladito.exception.OrigenNoPermitidoException;
 
 import javax.naming.AuthenticationException;
 
@@ -143,6 +145,28 @@ public class GlobalExepcionHandler {
         return responder(
                 HttpStatus.UNAUTHORIZED,
                 "Correo o contraseña incorrectos.",
+                Map.of()
+        );
+    }
+    @ExceptionHandler(RefreshTokenInvalidoException.class)
+    public ResponseEntity<ErrorApi> refreshTokenInvalido(
+            RefreshTokenInvalidoException ex
+    ) {
+
+        return responder(
+                HttpStatus.UNAUTHORIZED,
+                ex.getMessage(),
+                Map.of()
+        );
+    }
+    @ExceptionHandler(OrigenNoPermitidoException.class)
+    public ResponseEntity<ErrorApi> origenNoPermitido(
+            OrigenNoPermitidoException ex
+    ) {
+
+        return responder(
+                HttpStatus.FORBIDDEN,
+                ex.getMessage(),
                 Map.of()
         );
     }

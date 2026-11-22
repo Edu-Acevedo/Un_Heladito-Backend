@@ -77,6 +77,8 @@ public class SecurityConfig {
                                 "/api/estado",
                                 "/api/auth/register",
                                 "/api/auth/login",
+                                "/api/auth/refresh",
+                                "/api/auth/logout",
                                 "/swagger-ui.html",
                                 "/swagger-ui/**",
                                 "/v3/api-docs/**"
@@ -86,7 +88,6 @@ public class SecurityConfig {
                                 HttpMethod.GET,
                                 "/api/auth/me"
                         ).authenticated()
-
                         .anyRequest().permitAll()
                 )
 
